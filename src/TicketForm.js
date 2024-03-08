@@ -1,10 +1,10 @@
 // TicketForm.js
 import React, { useState } from "react";
-import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Select, MenuItem, FormControl, InputLabel, TextareaAutosize, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Tooltip, Grid, ToggleButtonGroup, ToggleButton } from "@mui/material";
+import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, Select, MenuItem, FormControl, InputLabel, TextareaAutosize, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Tooltip, Grid, } from "@mui/material";
 import "./TicketForm.css"
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
-const modules = ["Chatbot", "Core", "Forms", "Onboarding", "Performance Management", "Report Builder", "Talent Acquisition", "Time Management", "Travel & Reimbursement", "Vibe", "Visual Analytics Dashboard", "Workflows",];
+const modules = ["Chatbot", "Core", "Documents", "Forms", "Onboarding", "Payroll", "Performance Management", "Report Builder", "Talent Acquisition", "Time Management", "Travel & Reimbursement", "Vibe", "Visual Analytics Dashboard", "Workflows"];
 const subModules = [
     "Attendance", "Candidate Portal", "Career Page", "Chatbot", "Comp off", "Confirmation", "Core Setup", "Custom Workflow", "External Recruiter", "Formbuilder", "Goal Plan", "IDP", "Jobs & Workflow", "Leave", "Leave Actuarial Report", "MSF", "Offer Letter", "Offer Management", "Onboarding", "Onboarding Form", "Permission", "Position Management", "Reimbursement", "Report Builder", "Requisition", "Review & Talent Assessment", "Separation", "Travel", "Vibe", "Visual Analytics Dashboard",
 ];
@@ -26,7 +26,7 @@ const PopupInput = ({ open, onClose, onSubmit }) => {
     return (
         <Dialog open={open} onClose={onClose} sx={{ maxWidth: '1000px', maxHeight: '1000px', margin: '0 auto' }}>
             <DialogTitle>Enter Resolution</DialogTitle>
-            
+
             <DialogContent sx={{ width: '500px', height: '500px' }}>
                 <textarea
                     autoFocus
@@ -44,15 +44,15 @@ const PopupInput = ({ open, onClose, onSubmit }) => {
                         borderRadius: "5px",
                     }}
                 />
-                </DialogContent>
-                
+            </DialogContent>
+
 
             <DialogActions>
                 <center>
-                <Button onClick={onClose}>Cancel</Button>
-                <Button onClick={handleSubmit}>Submit</Button>
+                    <Button onClick={onClose}>Cancel</Button>
+                    <Button onClick={handleSubmit}>Submit</Button>
                 </center>
-                
+
             </DialogActions>
         </Dialog>
     );
@@ -65,51 +65,85 @@ const TicketForm = () => {
     const [text, setText] = useState("");
     const [results, setResults] = useState({
         resolutions: [],
-        sections: [],
         contents: [],
     });
     const [likedResults, setlikedResults] = useState({
         resolutions: [],
-        sections: [],
         contents: [],
     });
     const [likedIndexes, setLikedIndexes] = useState({
         resolutions: [],
-        sections: [],
         contents: [],
     });
     const [dislikedResults, setDislikedResults] = useState({
         resolutions: [],
-        sections: [],
         contents: [],
     });
     const [dislikedIndexes, setDislikedIndexes] = useState({
         resolutions: [],
-        sections: [],
         contents: [],
     });
 
     const [savedResults, setSavedResults] = useState();
     const [resultsFlag, setResultsFlag] = useState(false);
     const [savedResultsFlag, setSavedResultsFlag] = useState(false);
-    const [opensourceFlag, setOpensourceFlag] = useState("True");
     const [message, setMessage] = useState("");
-
-
-
-
     const [showPopup, setShowPopup] = useState(false);
 
+
+    const handleDownloadingData = async () => {
+        try {
+            const response = await fetch("http://localhost:8000/get_data/");
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(new Blob([blob]));
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", "records.json");
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode.removeChild(link);
+        } catch (error) {
+            console.error("Error downloading records:", error);
+        }
+    }
+    const handleFileUpload = async () => {
+        try {
+          const fileInput = document.createElement("input");
+          fileInput.type = "file";
+          fileInput.accept = ".xlsx"; 
+    
+          fileInput.addEventListener("change", async (e) => {
+            const file = e.target.files[0];
+            const formData = new FormData();
+            formData.append("file", file);
+    
+            const response = await fetch("http://localhost:8000/upload/", {
+              method: "POST",
+              body: formData,
+            });
+    
+            if (!response.ok) {
+              throw new Error("Failed to upload file");
+            }
+    
+            const data = await response.json();
+            console.log("File uploaded:", data.filename);
+          });
+    
+          fileInput.click();
+        } catch (error) {
+          console.error("Error uploading file:", error);
+        }
+      };
 
     const handleClosePopup = () => {
         setShowPopup(false);
     };
 
     const handleResolutionsSubmit = async (inputValue) => {
-        // console.log('Submitted value:', inputValue);
         try {
             const response = await fetch(
-                "http://127.0.0.1:8000/save_feedback",
+                "http://localhost:8000/save_feedback",
                 {
                     method: "POST",
                     headers: {
@@ -121,10 +155,8 @@ const TicketForm = () => {
                         question: text,
                         module: module,
                         sub_module: subModule,
-                        opensource: opensourceFlag,
                         resolution: inputValue,
                         resolutions: [...likedResults.resolutions, ...dislikedResults.resolutions],
-                        sections: [...likedResults.sections, ...dislikedResults.sections],
                         contents: [...likedResults.contents, ...dislikedResults.contents]
                     }),
                 }
@@ -135,26 +167,15 @@ const TicketForm = () => {
             }
 
             const responseData = await response.json();
-            // console.log("Response:", responseData);
             setMessage(responseData.message);
         } catch (error) {
-            // console.error("Error:", error);
-        }
-        // Handle submission logic here
-    };
-
-
-    const handleOpenSource = (event, flagValue) => {
-        // console.log("flagValue", flagValue);
-        if (flagValue !== null) {
-            setOpensourceFlag(flagValue);
+            console.error("Error:", error);
         }
     };
 
 
     const handleLikedButton = (index, type) => {
         const existingIndex = likedResults[type].findIndex(item => item.similarity === results[type][index].similarity);
-        console.log("rafaergf", existingIndex, likedResults)
         if (existingIndex === -1) {
             setlikedResults({
                 ...likedResults,
@@ -169,7 +190,6 @@ const TicketForm = () => {
                 ...prevState,
                 [type]: prevState[type].filter((_, i) => i !== existingIndex),
             }));
-            console.log("rafaergf", existingIndex)
             setLikedIndexes(prevState => ({
                 ...prevState,
                 [type]: prevState[type].filter(idx => idx !== existingIndex),
@@ -203,7 +223,6 @@ const TicketForm = () => {
 
     const handleTicketIdChange = (e) => {
         setTicketId(e.target.value);
-        // console.log(ticketId);
         if (ticketId === null || ticketId === "") {
             setModule("");
             setSubModule("");
@@ -213,10 +232,9 @@ const TicketForm = () => {
     };
 
     const handleSaveLikedData = async () => {
-        // console.log("likedResults", likedResults, dislikedResults);
         try {
             const response = await fetch(
-                "http://127.0.0.1:8000/save_feedback",
+                "http://localhost:8000/save_feedback",
                 {
                     method: "POST",
                     headers: {
@@ -228,10 +246,8 @@ const TicketForm = () => {
                         question: text,
                         module: module,
                         sub_module: subModule,
-                        opensource: opensourceFlag,
                         resolution: "",
                         resolutions: [...likedResults.resolutions, ...dislikedResults.resolutions],
-                        sections: [...likedResults.sections, ...dislikedResults.sections],
                         contents: [...likedResults.contents, ...dislikedResults.contents]
                     }),
                 }
@@ -242,25 +258,13 @@ const TicketForm = () => {
             }
 
             const responseData = await response.json();
-            // console.log("Response:", responseData);
             setMessage(responseData.message);
         } catch (error) {
-            // console.error("Error:", error);
+            console.error("Error:", error);
         }
     };
 
     const handleNoResolutionsFound = async () => {
-        // console.log("likedResults", likedResults);
-        // setlikedResults({
-        //     sections: [],
-        //     resolutions: [],
-        //     contents: [],
-        // });
-        // setDislikedResults({
-        //     sections: [],
-        //     resolutions: [],
-        //     contents: [],
-        // });
         setShowPopup(true);
 
     };
@@ -270,7 +274,7 @@ const TicketForm = () => {
         const getProblemStatement = async (requestData) => {
             try {
                 const response = await fetch(
-                    "http://127.0.0.1:8000/get_problem_statement",
+                    "http://localhost:8000/get_problem_statement",
                     {
                         method: "POST",
                         headers: {
@@ -293,17 +297,17 @@ const TicketForm = () => {
                 throw error;
             }
         };
-        const get_feedback = async (ticketid) => {
+        const get_ticketid_data = async () => {
             try {
                 const response = await fetch(
-                    "http://127.0.0.1:8000/get_feedback/" +
-                    ticketid,
+                    "http://localhost:8000/get_ticketid_data/",
                     {
-                        method: "GET",
+                        method: "POST",
                         headers: {
                             "Content-Type": "application/json",
                             accept: "application/json",
                         },
+                        body: JSON.stringify({ "ticket_id": ticketId })
                     }
                 );
 
@@ -324,10 +328,9 @@ const TicketForm = () => {
             question: text,
             module: module,
             sub_module: subModule,
-            opensource: opensourceFlag,
         };
         if (text === "" || text === null) {
-            get_feedback(ticketId)
+            get_ticketid_data()
                 .then((responseData) => {
                     // console.log("Response:", responseData);
                     setSavedResults(responseData);
@@ -337,11 +340,9 @@ const TicketForm = () => {
                 .catch((error) => {
                     // console.error("Error:", error);
                 });
-            // console.log("Form data:", { ticketId, module, subModule, text });
         } else {
             getProblemStatement(requestData)
                 .then((responseData) => {
-                    // console.log("Response:", responseData);
                     setResults(responseData);
                     setResultsFlag(true);
                     setSavedResultsFlag(false);
@@ -349,7 +350,6 @@ const TicketForm = () => {
                 .catch((error) => {
                     // console.error("Error:", error);
                 });
-            // console.log("Form data:", { ticketId, module, subModule, text });
         }
     };
 
@@ -372,24 +372,30 @@ const TicketForm = () => {
                     background: "#fff",
                 }}
             >
-                <center></center>
-                <h1 style={{ margin: "0" }}>AI Knowledge Base</h1>
-                <br></br>
-                <form>
-                    <FormControl component="fieldset">
-                        <ToggleButtonGroup
-                            value={opensourceFlag}
-                            exclusive
-                            onChange={handleOpenSource}
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <h1 style={{ margin: "0" }}>AI Knowledge Base</h1>
+                    <div style={{ float: "right", display: "flex", gap: "5px", marginTop: "-5px" }}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => handleFileUpload()}
                         >
-                            <ToggleButton value="True" aria-label="left aligned">
-                                Open Source
-                            </ToggleButton>
-                            <ToggleButton value="False" aria-label="right aligned">
-                                Open AI
-                            </ToggleButton>
-                        </ToggleButtonGroup>
-                    </FormControl>
+                            Upload Resolutions Excel
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => handleDownloadingData()}
+                        >
+                            Dowload Complete Data
+                        </Button>
+                    </div>
+                </div>
+
+
+                <br></br>
+
+                <form>
                     <TextField
                         label="Ticket ID"
                         value={ticketId}
@@ -483,15 +489,15 @@ const TicketForm = () => {
                                             <p>{savedResults.sub_module}</p>
                                         </Grid>
                                     </Grid>
-                                    {(savedResults.resolution)&&(
+                                    {(savedResults.resolution) && (
                                         <Grid container spacing={2}>
-                                        <Grid item xs={2}>
-                                            <h4>Resolution:</h4>
+                                            <Grid item xs={2}>
+                                                <h4>Resolution:</h4>
+                                            </Grid>
+                                            <Grid item xs={2}>
+                                                <p>{savedResults.resolution}</p>
+                                            </Grid>
                                         </Grid>
-                                        <Grid item xs={2}>
-                                            <p>{savedResults.resolution}</p>
-                                        </Grid>
-                                    </Grid>
                                     )}
                                 </>
                             )}
@@ -545,110 +551,6 @@ const TicketForm = () => {
                                                             {item.historical_problem_statement}
                                                         </TableCell>
                                                         <TableCell>{item.resolutions}</TableCell>
-                                                        <TableCell>{item.similarity}</TableCell>
-                                                        <TableCell>
-                                                            {(item.like === "True") && (<Tooltip title="Like">
-                                                                <IconButton
-                                                                    style={{ color: 'blue' }}
-                                                                >
-                                                                    <ThumbUpIcon />
-                                                                </IconButton>
-                                                            </Tooltip>)}
-                                                            {(item.like === "False") && (<Tooltip title="Dislike">
-                                                                <IconButton
-                                                                    style={{ color: 'red' }}
-                                                                >
-                                                                    <ThumbDownIcon />
-                                                                </IconButton>
-                                                            </Tooltip>)}
-                                                        </TableCell>
-                                                    </TableRow>
-                                                ))}
-                                            </>
-                                        )}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
-                        </div>
-                        <br></br>
-                        <div>
-                            <h2>Section Data</h2>
-                            <TableContainer component={Paper}>
-                                <Table>
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell>Section</TableCell>
-                                            <TableCell>Heading</TableCell>
-                                            <TableCell>File</TableCell>
-                                            <TableCell>Contents</TableCell>
-                                            <TableCell>Similarity</TableCell>
-                                            <TableCell>Feedback</TableCell>
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {resultsFlag ? (
-                                            <>
-                                                {results.sections.map((item, index) => (
-                                                    <TableRow key={index}>
-                                                        <TableCell>{item.section}</TableCell>
-                                                        <TableCell>{item.heading}</TableCell>
-                                                        <TableCell>{item.file}</TableCell>
-                                                        <TableCell>
-                                                            <div
-                                                                style={{
-                                                                    height: "100px",
-                                                                    width: "250px",
-                                                                    overflowY: "scroll",
-                                                                    overflowX: "hidden",
-                                                                    textA: "justify",
-                                                                    padding: "20px",
-                                                                }}
-                                                            >
-                                                                {item.contents}
-                                                            </div>
-                                                        </TableCell>
-                                                        <TableCell>{item.similarity}</TableCell>
-                                                        <TableCell>
-                                                            <Tooltip title="Like">
-                                                                <IconButton
-                                                                    onClick={() => handleLikedButton(index, 'sections')}
-                                                                    style={{ color: likedIndexes.sections.includes(index) ? 'blue' : 'inherit' }}
-                                                                >
-                                                                    <ThumbUpIcon />
-                                                                </IconButton>
-                                                            </Tooltip>
-                                                            <Tooltip title="Dislike">
-                                                                <IconButton onClick={() => handleDislikedButton(index, 'sections')}
-                                                                    style={{ color: dislikedIndexes.sections.includes(index) ? 'red' : 'inherit' }}
-                                                                >
-                                                                    <ThumbDownIcon />
-                                                                </IconButton>
-                                                            </Tooltip>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                ))}
-                                            </>
-                                        ) : (
-                                            <>
-                                                {savedResults.sections.map((item, index) => (
-                                                    <TableRow key={index}>
-                                                        <TableCell>{item.section}</TableCell>
-                                                        <TableCell>{item.heading}</TableCell>
-                                                        <TableCell>{item.file}</TableCell>
-                                                        <TableCell>
-                                                            <div
-                                                                style={{
-                                                                    height: "100px",
-                                                                    width: "250px",
-                                                                    overflowY: "scroll",
-                                                                    overflowX: "hidden",
-                                                                    textA: "justify",
-                                                                    padding: "20px",
-                                                                }}
-                                                            >
-                                                                {item.contents}
-                                                            </div>
-                                                        </TableCell>
                                                         <TableCell>{item.similarity}</TableCell>
                                                         <TableCell>
                                                             {(item.like === "True") && (<Tooltip title="Like">
