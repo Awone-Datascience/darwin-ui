@@ -4,10 +4,11 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, S
 import "./TicketForm.css"
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
-const modules = ["Chatbot", "Core", "Documents", "Forms", "Onboarding", "Payroll", "Performance Management", "Report Builder", "Talent Acquisition", "Time Management", "Travel & Reimbursement", "Vibe", "Visual Analytics Dashboard", "Workflows"];
-const subModules = [
-    "Attendance", "Candidate Portal", "Career Page", "Chatbot", "Comp off", "Confirmation", "Core Setup", "Custom Workflow", "External Recruiter", "Formbuilder", "Goal Plan", "IDP", "Jobs & Workflow", "Leave", "Leave Actuarial Report", "MSF", "Offer Letter", "Offer Management", "Onboarding", "Onboarding Form", "Permission", "Position Management", "Reimbursement", "Report Builder", "Requisition", "Review & Talent Assessment", "Separation", "Travel", "Vibe", "Visual Analytics Dashboard",
-];
+// const modules = ["Chatbot", "Core", "Documents", "Forms", "Onboarding", "Payroll", "Performance Management", "Report Builder", "Talent Acquisition", "Time Management", "Travel & Reimbursement", "Vibe", "Visual Analytics Dashboard", "Workflows"];
+const modules = ["Amplify", "Chatbot", "Core", "Darwinbox Studio", "Documents", "Forms", "Helpdesk", "Mobile", "Multi Module", "Onboarding", "Payroll", "Performance Management", "Platform Services", "Recruitment", "Reports", "Rewards & Recognition", "Surveys & Engagement", "Talent Acquisition", "Talent Intelligence", "Talent Management", "Time Management", "Travel & Reimbursement", "Vibe", "Visual Analytics Dashboard", "Workflows"]
+// const subModules = [
+//     "Attendance", "Candidate Portal", "Career Page", "Chatbot", "Comp off", "Confirmation", "Core Setup", "Custom Workflow", "External Recruiter", "Formbuilder", "Goal Plan", "IDP", "Jobs & Workflow", "Leave", "Leave Actuarial Report", "MSF", "Offer Letter", "Offer Management", "Onboarding", "Onboarding Form", "Permission", "Position Management", "Reimbursement", "Report Builder", "Requisition", "Review & Talent Assessment", "Separation", "Travel", "Vibe", "Visual Analytics Dashboard",
+// ];
 
 
 const PopupInput = ({ open, onClose, onSubmit }) => {
@@ -61,7 +62,7 @@ const PopupInput = ({ open, onClose, onSubmit }) => {
 const TicketForm = () => {
     const [ticketId, setTicketId] = useState("");
     const [module, setModule] = useState("");
-    const [subModule, setSubModule] = useState("");
+    // const [subModule, setSubModule] = useState("");
     const [text, setText] = useState("");
     const [results, setResults] = useState({
         resolutions: [],
@@ -128,6 +129,7 @@ const TicketForm = () => {
     
             const data = await response.json();
             console.log("File uploaded:", data.filename);
+            alert("File uploaded")
           });
     
           fileInput.click();
@@ -154,7 +156,7 @@ const TicketForm = () => {
                         ticket_id: ticketId,
                         question: text,
                         module: module,
-                        sub_module: subModule,
+                        // sub_module: subModule,
                         resolution: inputValue,
                         resolutions: [...likedResults.resolutions, ...dislikedResults.resolutions],
                         contents: [...likedResults.contents, ...dislikedResults.contents]
@@ -225,7 +227,7 @@ const TicketForm = () => {
         setTicketId(e.target.value);
         if (ticketId === null || ticketId === "") {
             setModule("");
-            setSubModule("");
+            // setSubModule("");
             setText("");
         } else {
         }
@@ -245,7 +247,7 @@ const TicketForm = () => {
                         ticket_id: ticketId,
                         question: text,
                         module: module,
-                        sub_module: subModule,
+                        // sub_module: subModule,
                         resolution: "",
                         resolutions: [...likedResults.resolutions, ...dislikedResults.resolutions],
                         contents: [...likedResults.contents, ...dislikedResults.contents]
@@ -327,7 +329,7 @@ const TicketForm = () => {
             ticket_id: ticketId,
             question: text,
             module: module,
-            sub_module: subModule,
+            // sub_module: subModule,
         };
         if (text === "" || text === null) {
             get_ticketid_data()
@@ -416,7 +418,7 @@ const TicketForm = () => {
                         </Select>
                     </FormControl>
                     <FormControl fullWidth margin="normal">
-                        <InputLabel>Sub-Module</InputLabel>
+                        {/* <InputLabel>Sub-Module</InputLabel>
                         <Select
                             value={subModule}
                             onChange={(e) => setSubModule(e.target.value)}
@@ -427,7 +429,7 @@ const TicketForm = () => {
                                 </MenuItem>
                             ))}
                         </Select>
-                        <br />
+                        <br /> */}
                         <TextareaAutosize
                             aria-label="Problem Statement"
                             placeholder="Problem Statement"
@@ -481,14 +483,14 @@ const TicketForm = () => {
                                             <p>{savedResults.module}</p>
                                         </Grid>
                                     </Grid>
-                                    <Grid container spacing={2}>
+                                    {/* <Grid container spacing={2}>
                                         <Grid item xs={2}>
                                             <h4>SubModule:</h4>
                                         </Grid>
                                         <Grid item xs={2}>
                                             <p>{savedResults.sub_module}</p>
                                         </Grid>
-                                    </Grid>
+                                    </Grid> */}
                                     {(savedResults.resolution) && (
                                         <Grid container spacing={2}>
                                             <Grid item xs={2}>
