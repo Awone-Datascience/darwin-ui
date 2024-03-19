@@ -5,7 +5,7 @@ import "./TicketForm.css"
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 // const modules = ["Chatbot", "Core", "Documents", "Forms", "Onboarding", "Payroll", "Performance Management", "Report Builder", "Talent Acquisition", "Time Management", "Travel & Reimbursement", "Vibe", "Visual Analytics Dashboard", "Workflows"];
-const modules = ["Amplify", "Chatbot", "Core", "Darwinbox Studio", "Documents", "Forms", "Helpdesk", "Mobile", "Multi Module", "Onboarding", "Payroll", "Performance Management", "Platform Services", "Recruitment", "Reports", "Rewards & Recognition", "Surveys & Engagement", "Talent Acquisition", "Talent Intelligence", "Talent Management", "Time Management", "Travel & Reimbursement", "Vibe", "Visual Analytics Dashboard", "Workflows"]
+const modules = ["Amplify", "Chatbot", "Core", "Darwinbox Studio", "Documents", "Forms", "Helpdesk", "Mobile", "Multi Module", "Onboarding", "Payroll", "Performance Management", "Platform Services", "Reports", "Rewards & Recognition", "Surveys & Engagement", "Talent Acquisition", "Talent Intelligence", "Talent Management", "Time Management", "Travel & Reimbursement", "Vibe", "Visual Analytics Dashboard", "Workflows"]
 // const subModules = [
 //     "Attendance", "Candidate Portal", "Career Page", "Chatbot", "Comp off", "Confirmation", "Core Setup", "Custom Workflow", "External Recruiter", "Formbuilder", "Goal Plan", "IDP", "Jobs & Workflow", "Leave", "Leave Actuarial Report", "MSF", "Offer Letter", "Offer Management", "Onboarding", "Onboarding Form", "Permission", "Position Management", "Reimbursement", "Report Builder", "Requisition", "Review & Talent Assessment", "Separation", "Travel", "Vibe", "Visual Analytics Dashboard",
 // ];
@@ -111,27 +111,27 @@ const TicketForm = () => {
         try {
           const fileInput = document.createElement("input");
           fileInput.type = "file";
-          fileInput.accept = ".xlsx"; 
-    
+          fileInput.accept = ".xlsx";
+
           fileInput.addEventListener("change", async (e) => {
             const file = e.target.files[0];
             const formData = new FormData();
             formData.append("file", file);
-    
+
             const response = await fetch("http://localhost:8000/upload/", {
               method: "POST",
               body: formData,
             });
-    
+
             if (!response.ok) {
               throw new Error("Failed to upload file");
             }
-    
+
             const data = await response.json();
             console.log("File uploaded:", data.filename);
             alert("File uploaded")
           });
-    
+
           fileInput.click();
         } catch (error) {
           console.error("Error uploading file:", error);
@@ -273,6 +273,27 @@ const TicketForm = () => {
 
     const handleSubmit = () => {
         setMessage("");
+        setDislikedResults({
+            resolutions: [],
+            contents: [],
+        })
+        setDislikedIndexes({
+            resolutions: [],
+            contents: [],
+        })
+        setlikedResults({
+            resolutions: [],
+            contents: [],
+        })
+        setLikedIndexes({
+            resolutions: [],
+            contents: [],
+        })
+        setResults({
+            resolutions: [],
+            contents: [],
+        });
+        setSavedResults({});
         const getProblemStatement = async (requestData) => {
             try {
                 const response = await fetch(
@@ -658,7 +679,7 @@ const TicketForm = () => {
                                                             </div>
                                                         </TableCell>
                                                         <TableCell>{item.similarity}</TableCell>
-                                                        <TableCell>
+                                                       <TableCell>
                                                             {(item.like === "True") && (<Tooltip title="Like">
                                                                 <IconButton
                                                                     style={{ color: 'blue' }}
